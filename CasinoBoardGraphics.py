@@ -3,10 +3,6 @@ import pygame, sys
 from pygame.locals import *
 from CasinoVariables import w
 from CasinoLogic import rankChoices4Build
-#from CasinoCardGraphics import paintCard
-
-##TO DO##
-#-fix buildChoicesDict which sometimes shows too many choices
 
 # set up the colors
 BLACK =(0, 0, 0)
@@ -18,22 +14,9 @@ BEIGE = (255, 255, 204)
 YELLOW = (255, 255, 0)
 
 
-##Unfortunately, I named everything "buildX" which is annyoing because it has nothing to do with the casino concept of building. Maybe I'll change this later.
-
-
-##def buildNametags(window=w): #to tell you what the rank of each build on the table is
-##    for i in range(4):
-##        if buildRankDict[i] != 0:
-##            nametag = pygame.font.Font('freesansbold.ttf', 18)
-##            tag = nametag.render("Build: "+str(buildRankDict[i]), True, BEIGE, GREEN)
-##            tagRectObj = tag.get_rect()
-##            tagRectObj.topleft = ((24*(i*4+25)),24*8)
-##            window.blit(tag, tagRectObj)
-
-
 def buildScore(playerONE, playerTWO, window=w):
     #who is top and bottom
-    if playerONE.side == "top":
+    if playerONE.side == "top":#to determine rendering
         p1 = playerONE
         p2 = playerTWO
     else:
@@ -101,19 +84,6 @@ def buildGameScore(player1, player2, window=w): #to display the score (briefly) 
     winRectObj.topleft = (24*14.5,24*11)
     window.blit(win, winRectObj)
 
-    #draw all of the cards in a nice way
-    ##top player, top row
-#    topRowCards = [p1dict['myBigCasino'], p1dict['myAces'], p1dict['myPointSpades'], p1dict['mySpades']]
-#    currentSet = []
-#    for i in xrange(15, 38):
-#        if len(currentSet) == 0:
-#            if len(topRowCards) == 0:
-#                break
-#            currentSet = topRowCards[0][:]
-#            topRowCards.pop(0)
-#            continue
-#        paintCard(currentSet[0], (24*i, 24))
-
 def buildRoundScore(player1, player2, window=w): #to display the score (briefly) at the end of a game
     pygame.draw.rect(window, RED, (24*14, 24*10, 24*17, 24*7))
     #who is top and bottom
@@ -172,15 +142,15 @@ def buildIllegalMove(illegalMove, window=w): #gives you a hint about why the mov
         badRect = badText.get_rect()
         badRect.center = (540, 24*22)      
         window.blit(badText, badRect)
-
-def buildLast(window=w): #writing out LAST to signify that it is the last hand of the game
+#writing out LAST to signify that it is the last hand of the game
+def buildLast(window=w): 
         lastFont = pygame.font.Font('freesansbold.ttf', 30)
         lastText = lastFont.render("L A S T", True, YELLOW, GREEN)
         lastRect = lastText.get_rect()
         lastRect.center = (540, 24*6)      
         window.blit(lastText, lastRect)
-
-def buildInstructions(window=w): #A little box at the bottom that gives instructions on how to use the keyboard and mouse in this game
+#Box at the bottom that gives instructions on how to use the keyboard and mouse in this game
+def buildInstructions(window=w): 
     pygame.draw.rect(window, RED, (24*1.7, 24*22.7, 24*11.6, 24*5.3))
     insFont = pygame.font.Font('freesansbold.ttf', 14)
     ins1 = insFont.render("Click on cards from the table and in", True, BEIGE, RED)
@@ -193,7 +163,7 @@ def buildInstructions(window=w): #A little box at the bottom that gives instruct
     ins2RectObj.topleft = (24*2,24*23.8)
     window.blit(ins2, ins2RectObj)
 
-    ins3 = insFont.render("Type <t> to Trail, <c> to Capture, and", True, BEIGE, RED)
+    ins3 = insFont.render("Type <s> to Save <t> to Trail, <c> to Capture, and", True, BEIGE, RED)
     ins3RectObj = ins3.get_rect()
     ins3RectObj.topleft = (24*2,24*24.6)
     window.blit(ins3, ins3RectObj)

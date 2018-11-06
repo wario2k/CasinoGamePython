@@ -32,7 +32,7 @@ class GameState():
         self.displayCM = False
             #in this state the highlighted cards get shown
             #then we actually execute the move (UI and logic)
-            #if the computer isn't the dealer, the next state
+            #if the computer isn't the current player, the next state
             #should always be waitCM, otherwise on the last
             #turn of each hand it should go to waitP or last
             
@@ -51,7 +51,7 @@ class GameState():
             #right before gameOver
 
         self.newGame = False
-            #after gameOver, to switch dealers and clear hands before a new game
+            #after gameOver, to switch current player and clear hands before a new game
 
         self.roundOver = False
             #once a player reaches 21 points, to display the final score

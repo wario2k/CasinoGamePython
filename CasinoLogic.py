@@ -3,9 +3,6 @@
 import random
 import itertools
 
-##TO DO##
-#-Make the Move class less messy
-
 suits = ["c","s","h","d"]
 
 class Card():
@@ -13,7 +10,7 @@ class Card():
                 self.rank = rank
                 self.suit = suit
 
-                
+
 class Deck():
         def __init__(self):
                 self.remaining = [] #what cards are left, haven't been dealt yet
@@ -52,6 +49,26 @@ class Deck():
                                 x.append(card.suit.upper() + str(card.rank).upper())        
                 return x
 
+        #required for serializing deck
+        #params : cards 
+        #returns : none 
+        def loadDeck(self,cards):
+                for card in cards:
+                        if(card[1] == "A"):
+                                rank = 1
+                        elif(card[1] == "X"):
+                                rank = 10
+                        elif(card[1] == "J"):
+                                rank = 11
+                        elif(card[1] == "Q"):
+                                rank = 12
+                        elif(card[1] == "K"):
+                                rank = 13
+                        else:
+                                rank = int(card[1])     
+                        suit = card[0].lower()
+                        self.remaining.append(Card(rank, suit))
+
 
 class Player():
 
@@ -89,6 +106,43 @@ class Player():
                 self.currentBuilds = []
                 self.pile = []
 
+#clear hand and load from stream
+        def loadHand(self,cards):
+                self.hand = []
+                for card in cards:
+                        if(card[1] == "A"):
+                                rank = 1
+                        elif(card[1] == "X"):
+                                rank = 10
+                        elif(card[1] == "J"):
+                                rank = 11
+                        elif(card[1] == "Q"):
+                                rank = 12
+                        elif(card[1] == "K"):
+                                rank = 13
+                        else:
+                                rank = int(card[1])     
+                        suit = card[0].lower()
+                        self.hand.append(Card(rank, suit))
+#clear pile and load from stream
+        def loadPile(self,cards):
+                self.pile = []
+                for card in cards:
+                        if(card[1] == "A"):
+                                rank = 1
+                        elif(card[1] == "X"):
+                                rank = 10
+                        elif(card[1] == "J"):
+                                rank = 11
+                        elif(card[1] == "Q"):
+                                rank = 12
+                        elif(card[1] == "K"):
+                                rank = 13
+                        else:
+                                rank = int(card[1])     
+                        suit = card[0].lower()
+                        self.pile.append(Card(rank, suit))
+        
         def arrangeCards(self):
             myBoringCards = []
             mySpades = []
@@ -110,6 +164,22 @@ class Player():
             return {'myBoringCards': myBoringCards, 'myPointSpades': myPointSpades,
                     'myAces': myAces, 'mySpades': mySpades, 'myBigCasino': myBigCasino}
 
+        def printPile(self):
+                y = []
+                for card in self.pile:
+                        if(card.rank == 1):
+                                y.append(card.suit.upper() + "A")
+                        elif(card.rank == 10):
+                                y.append(card.suit.upper() + "X")
+                        elif(card.rank == 11):
+                                y.append(card.suit.upper() + "J")
+                        elif(card.rank == 12):
+                                y.append(card.suit.upper() + "Q")
+                        elif(card.rank == 13):
+                                y.append(card.suit.upper() + "K")
+                        else:
+                                y.append(card.suit.upper() + str(card.rank).upper())        
+                return y
         def printHand(self):
                 x = []
                 for card in self.hand:
@@ -155,6 +225,49 @@ class Table():
         def __init__(self):
                 self.allCards = []
                 self.builds = {} #format: key: 7, value: [card, card, card]
+        #probably can't load builds
+        def loadTable(self):
+                for card in cards:
+                        if(card[1] == "A"):
+                                rank = 1
+                        elif(card[1] == "X"):
+                                rank = 10
+                        elif(card[1] == "J"):
+                                rank = 11
+                        elif(card[1] == "Q"):
+                                rank = 12
+                        elif(card[1] == "K"):
+                                rank = 13
+                        else:
+                                rank = int(card[1])     
+                        suit = card[0].lower()
+                        self.allCards.append(Card(rank, suit))
+                
+                
+        def get_available(self):
+                captured = []
+                for builds in self.builds.values():
+                        captured += builds
+
+                availableCards = []
+                for card in self.allCards:
+                        if card not in captured:
+                                availableCards.append(card)
+                x = []
+                for card in availableCards:
+                        if(card.rank == 1):
+                                x.append(card.suit.upper() + "A")
+                        elif(card.rank == 10):
+                                x.append(card.suit.upper() + "X")
+                        elif(card.rank == 11):
+                                x.append(card.suit.upper() + "J")
+                        elif(card.rank == 12):
+                                x.append(card.suit.upper() + "Q")
+                        elif(card.rank == 13):
+                                x.append(card.suit.upper() + "K")
+                        else:
+                                x.append(card.suit.upper() + str(card.rank).upper())        
+                return x
 
         def availableCards(self): #all cards not currently captured in builds
                 #I made this a method instead of an attribute because it has to change when allCards changes all the time
@@ -314,8 +427,93 @@ class Take(Move):
                 buildCardsTaken = self.currentTable.builds[self.buildRank]
             else:
                 buildCardsTaken = []
-            return multiplesCheck(self.cardPlayed.rank, self.tableCards+[self.cardPlayed]+buildCardsTaken) #I'm not sure I needed to put self.cardPlayed in here....
+            return multiplesCheck(self.cardPlayed.rank, self.tableCards+[self.cardPlayed]+buildCardsTaken)
 
+#variables needed to save game state
+class saveHandler():
+        def __init__(self, currentTable, human, computer, currentDeck, roundNumber):
+                self.s_table = currentTable
+                self.s_deck = currentDeck
+                self.s_human = human
+                self.s_roundNumber = roundNumber
+                self.s_computer = computer
+             
+
+#Description : This is the save class that will gather all information necessary and save the round to a text file to be loaded from 
+#Parameters : saveHandler : which has the following fields 
+                # currentTable -> current state of table , human -> human player, computer -> computer player, currentDeck -> deck, roundNumber -> current round
+#execute : saves the file and exits the game.
+class Save(saveHandler):
+        def legal(self):
+                return True
+        #this will save game 
+        def execute(self):
+                filename = input("Please enter the name of file you want to save to: ")
+                #open file to write to
+                f = open(filename, "w")
+                f.write("Round: " + str(self.s_roundNumber))
+                f.write("\nComputer: \n")
+                f.write("Score: " + str(self.s_computer.totalPoints))
+                
+                c_hand = self.s_computer.printHand()
+                str_chand = ""
+                for c_card in c_hand:
+                        str_chand += c_card
+                        str_chand += " "
+                f.write("\nHand: " + str_chand)
+                c_pile = self.s_computer.printPile()
+                str_chand = ""
+                for card in c_pile:
+                        str_chand += card
+                        str_chand += " "
+                f.write("\nPile: " + str_chand)
+
+                f.write("\nHuman: \n")
+                f.write("Score: " + str(self.s_human.totalPoints))
+                h_hand = self.s_human.printHand()
+                str_hhand = ""
+                for card in h_hand:
+                        str_hhand += c_card
+                        str_hhand += " "
+                f.write("\nHand: " + str_hhand)
+                h_pile = self.s_human.printPile()
+                str_hpile = ""
+                for card in h_pile:
+                        str_hpile += card
+                        str_hpile += " "
+                f.write("\nPile: " + str_hpile)
+                
+                #table
+                table_cards = self.s_table.availableCards()
+                all_cards = self.s_table.allCards
+                has_build = False
+                if(len(all_cards) > len(table_cards)):
+                        has_build = True
+                str_table_cards = self.s_table.get_available()
+                table_str = ""
+                for x in str_table_cards:
+                        table_str += x 
+                        table_str += " "
+                f.write("\nTable: " + table_str) #does not write cards in builds
+                #build if exist
+                if(has_build):
+                        f.write("\nBuild: ")
+                #deck
+                cardsInDeck = self.s_deck.getDeck()
+                deck_str = ""
+                for card in cardsInDeck:
+                        deck_str += card
+                        deck_str += " "
+                f.write("\nDeck: " + deck_str)
+                #next player
+                f.write("\nNext Player: ")
+                if(self.s_human.dealer):
+                        f.write("Human")
+                else:
+                        f.write("Computer")
+                
+                print("GAME STATE SAVED. GAME WILL NOW EXIT. THANKS FOR PLAYING")
+                exit(0)
 
 class Build(Move):                               
         def legal(self):

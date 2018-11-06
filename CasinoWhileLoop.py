@@ -17,7 +17,7 @@ from CasinoCardGraphics import *
 from CasinoBoardGraphics import*
 from CasinoInteractive import getCard, getTableCards, getSelectedBuildRank, buildChoicesSpots, buildFromCoordinates
 from CasinoComputerPlayer import cardsValue, discardValue, getComputerMove
-from CasinoLogic import suits, Card, Deck, Player, ComputerPlayer, HumanPlayer, Table, multiplesCheck, Move, TakeLastCards, Discard, Take, Build, rankChoices4Build
+from CasinoLogic import suits, Card, Deck, Player, ComputerPlayer, HumanPlayer, Table, multiplesCheck, Move, TakeLastCards, Save,Discard, Take, Build, rankChoices4Build
 from GameState import GameState
 
 
@@ -146,8 +146,9 @@ while True: # main game loop
             player2.hand.append(deck.draw())
         print("Round Number = ", gameNumber + 1)
         print("Computer hand = ", player2.printHand())
+        print("Compute pile = ",player2.printPile())
         print("Human hand    = ", player1.printHand())
-        
+        print("Human pile = ",player1.printPile())
         populateHandsUI(player1, player2)
         print("Current deck = " , deck.getDeck())
         buildChoicesDict = updatedBuildChoicesDict(player1)
@@ -336,6 +337,10 @@ while True: # main game loop
             elif (event.type == KEYDOWN and event.key == K_b):
                 moveType = "Build"
                 illegalMove = False
+                #press down s to save game
+            elif(event.type == KEYDOWN and event.key == K_s):
+                moveType ="Save"
+                illegalMove = False
 
 
 
@@ -348,7 +353,9 @@ while True: # main game loop
                     if moveType == "Discard":
                         #need to add check to see if can caputre anything on table
                         move = Discard(table, cardPlayed, player1, player2)
-
+                    elif moveType =="Save":
+                        #currentTable, human, computer, currentDeck, roundNumber
+                        move = Save(table,player1,player2,deck,gameNumber+1)
                     elif moveType == "Take":
                         tableCardList = getTableCards()
                         buildTaken = getSelectedBuildRank()          
