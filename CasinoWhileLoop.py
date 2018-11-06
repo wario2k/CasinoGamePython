@@ -25,7 +25,7 @@ pygame.init()
 pygame.display.set_caption('Casino v5')
 
 
-## Global Variables (is that what I mean?) ##
+## Global Variables 
 
 gameState = GameState() #it starts in the prep state
 
@@ -39,8 +39,27 @@ deck = Deck()
 deck.shuffle()
 table = Table()
 
-player1 = HumanPlayer(False, "Alicia")
-player2 = ComputerPlayer(True)
+h_turn = True
+c_turn = False
+flip = -1
+h_choice = -1
+
+while(1):
+    flip = random.randint(0, 1)
+    h_choice = input("Please Enter 1 for Heads and 0 for Tails:")
+    if(h_choice.isdigit() and h_choice == "1" or h_choice == "0"):
+        break
+    else:
+        print("Invalid selection please try again")
+if(flip == h_choice):
+    print("Human will go first!")
+    h_turn = False
+    c_turn = True
+else:
+    print("Computer will go first!")   
+
+player1 = HumanPlayer(h_turn, "Human")
+player2 = ComputerPlayer(c_turn)
 
 
 #keeps track of what move the human is currently working on
@@ -52,7 +71,7 @@ computerMoveType = None
 computerMove = None
 tup = None
 
-buildRank = 0 #what build we're currently talking about.... its a horrible variable.
+buildRank = 0 #what build we're currently talking about
 
 illegalMove = False #once the player presses enter, was that an illegal move or not?
 
@@ -125,10 +144,12 @@ while True: # main game loop
         for i in range(4):
             player1.hand.append(deck.draw())
             player2.hand.append(deck.draw())
-
-
+        print("Round Number = ", gameNumber + 1)
+        print("Computer hand = ", player2.printHand())
+        print("Human hand    = ", player1.printHand())
+        
         populateHandsUI(player1, player2)
-
+        print("Current deck = " , deck.getDeck())
         buildChoicesDict = updatedBuildChoicesDict(player1)
 
         #changing the state based on who is the dealer
@@ -140,7 +161,7 @@ while True: # main game loop
        
 
 
-    #-- drawing stuff onto the screen --#
+    #-- Rendering screen--#
     w.fill(GREEN)
     buildScore(player1, player2)
     buildInstructions()
@@ -306,10 +327,10 @@ while True: # main game loop
 
 
         if gameState.gettingMove:
-            if (event.type == KEYDOWN and event.key == K_d):
+            if (event.type == KEYDOWN and event.key == K_t):
                 moveType = "Discard"
                 illegalMove = False
-            elif (event.type == KEYDOWN and event.key == K_t):
+            elif (event.type == KEYDOWN and event.key == K_c):
                 moveType = "Take"
                 illegalMove = False
             elif (event.type == KEYDOWN and event.key == K_b):
@@ -325,6 +346,7 @@ while True: # main game loop
 
                 else:
                     if moveType == "Discard":
+                        #need to add check to see if can caputre anything on table
                         move = Discard(table, cardPlayed, player1, player2)
 
                     elif moveType == "Take":

@@ -12,10 +12,6 @@ class Card():
         def __init__(self, rank, suit):
                 self.rank = rank
                 self.suit = suit
-                if rank > 9: #I don't think I actually use this later on, but it could maybe be helpful if I were to make another card game using these classes
-                        self.faceCard = True
-                else:
-                        self.faceCard = False
 
                 
 class Deck():
@@ -38,6 +34,23 @@ class Deck():
 
         def count(self): #if you wanted to know how many cards were left (also not used in Casino)
                 return len(self.remaining)
+        def getDeck(self):
+                x = []
+                for card in self.remaining:
+                        
+                        if(card.rank == 1):
+                                x.append(card.suit.upper() + "A")
+                        elif(card.rank == 10):
+                                x.append(card.suit.upper() + "X")
+                        elif(card.rank == 11):
+                                x.append(card.suit.upper() + "J")
+                        elif(card.rank == 12):
+                                x.append(card.suit.upper() + "Q")
+                        elif(card.rank == 13):
+                                x.append(card.suit.upper() + "K")
+                        else:
+                                x.append(card.suit.upper() + str(card.rank).upper())        
+                return x
 
 
 class Player():
@@ -97,6 +110,24 @@ class Player():
             return {'myBoringCards': myBoringCards, 'myPointSpades': myPointSpades,
                     'myAces': myAces, 'mySpades': mySpades, 'myBigCasino': myBigCasino}
 
+        def printHand(self):
+                x = []
+                for card in self.hand:
+                        if(card.rank == 1):
+                                x.append(card.suit.upper() + "A")
+                        elif(card.rank == 10):
+                                x.append(card.suit.upper() + "X")
+                        elif(card.rank == 11):
+                                x.append(card.suit.upper() + "J")
+                        elif(card.rank == 12):
+                                x.append(card.suit.upper() + "Q")
+                        elif(card.rank == 13):
+                                x.append(card.suit.upper() + "K")
+                        else:
+                                x.append(card.suit.upper() + str(card.rank).upper())        
+                return x
+
+
 class ComputerPlayer(Player):
         def __init__(self, dealer):
                 self.name = "The Computer"
@@ -106,7 +137,7 @@ class ComputerPlayer(Player):
                 self.currentBuilds = [] #a list of numbers representing the ranks of builds being built
                 self.pile = [] #the cards they've collected
                 self.totalPoints = 0
-
+        
 
 class HumanPlayer(Player):
         def __init__(self, dealer, name):
@@ -148,7 +179,7 @@ class Table():
                 
 
 
-### Move classes & subclasses ### -> 4 types of moves: Discard, Take, Build, TakeLastCards
+### Move classes & subclasses ### -> 4 types of moves: Trail, Capture, Build, TakeLastCards
 
 #this checks if a set of cards could be legaly taken by a card of value =  "rank"
 
@@ -213,11 +244,38 @@ class Discard(Move):
         def execute(self):
                 self.currentTable.allCards.append(self.cardPlayed)
                 self.player.hand.remove(self.cardPlayed)
-
+        
         def legal(self):
-                if len(self.player.currentBuilds) == 0: #can't discard if you're building something
-                        return True
-                return False
+                #need to see if you can capture something or build something before being allowed to discard 
+                #this will get populated with different possibilites for captures
+                takeChoices = {} 
+                tableCards = []
+                for card in self.currentTable.allCards:
+                        tableCards.append(card)
+                allCardCombinations = []
+                for i in range(1,len(tableCards)+1):
+                        allCardCombinations += list(itertools.combinations(tableCards,i))
+                #if this stays False, there are no capture moves so computer will trail
+                takePossible = False 
+                #here we go through each card in the hand to see what cards from the table it could take
+                for card in self.player.hand: 
+                        takeChoices[card] = []
+                        cardCanTake = False
+                        for combination in allCardCombinations:
+                                #if that combination would be a legal move to take with a card of this rank
+                                if multiplesCheck(card.rank, list(combination)): 
+                                        #put it in the list
+                                        takeChoices[card].append(list(combination)) 
+                                        #which means we can take (don't have to trail)
+                                        takePossible = True 
+                                        #that specific card from the hand can be used to capture
+                                        cardCanTake = True 
+                
+                if (len(self.player.currentBuilds) == 0): #can't discard if you're building something
+                        if(takePossible):
+                                return False
+                        else:        
+                                return True
 
 class Take(Move):
         def execute(self):

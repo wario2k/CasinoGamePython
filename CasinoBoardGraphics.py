@@ -150,7 +150,7 @@ def buildRoundScore(player1, player2, window=w): #to display the score (briefly)
 
 def buildMoveType(moveType, window=w): #shows the move you've selected right above the cards in your hand
         moveTypeFont = pygame.font.Font('freesansbold.ttf', 18)
-        moveTypeText = moveTypeFont.render(moveType, True, YELLOW, GREEN)
+        moveTypeText = moveTypeFont.render(moveType, True, GREEN, GREEN)
         moveTypeRect = moveTypeText.get_rect()
         moveTypeRect.center = (540, 552)      
         window.blit(moveTypeText, moveTypeRect)
@@ -193,7 +193,7 @@ def buildInstructions(window=w): #A little box at the bottom that gives instruct
     ins2RectObj.topleft = (24*2,24*23.8)
     window.blit(ins2, ins2RectObj)
 
-    ins3 = insFont.render("Type <d> to discard, <t> to take, and", True, BEIGE, RED)
+    ins3 = insFont.render("Type <t> to Trail, <c> to Capture, and", True, BEIGE, RED)
     ins3RectObj = ins3.get_rect()
     ins3RectObj.topleft = (24*2,24*24.6)
     window.blit(ins3, ins3RectObj)
@@ -239,10 +239,10 @@ def textForCard(card): #a function that prints out a word description of the ran
 
 def buildComputerMove(tup,moveType, window=w): #Gives a description of the last move a computer made
     if moveType == "Discard":
-        first = "The computer discarded:"
+        first = "The computer Trailed:"
         second = textForCard(tup[0])
     elif moveType == "Take":
-        first = "The computer took:"
+        first = "The computer Captured:"
         second = ""
         for card in tup[1]:
             second += textForCard(card)+", "
@@ -293,16 +293,8 @@ def updatedBuildChoicesDict(player):
         i += 1
     return d
 
-def buildBuildChoices(player, buildChoicesDict, window=w): #once the player indicates that they want to build, this shows the options of what to build to
-##    buildChoicesDict = {}
-##    x = rankChoices4Build(player)[:] #find out what the player could build to
-##    x.sort() #put the ranks in order to be prettier
-##    i = 0
-##    for rank in x: #make the dictionary
-##        buildChoicesDict[i] = rank
-##        i += 1
-
-   # print(buildChoicesDict) for debugging 
+def buildBuildChoices(player, buildChoicesDict, window=w): 
+    #once the player indicates that they want to build, this shows the options of what to build to
     
     buildTypeFont = pygame.font.Font('freesansbold.ttf', 23)
 
