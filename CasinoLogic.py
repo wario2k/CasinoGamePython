@@ -249,9 +249,7 @@ class Discard(Move):
                 #need to see if you can capture something or build something before being allowed to discard 
                 #this will get populated with different possibilites for captures
                 takeChoices = {} 
-                tableCards = []
-                for card in self.currentTable.allCards:
-                        tableCards.append(card)
+                tableCards = self.currentTable.availableCards()
                 allCardCombinations = []
                 for i in range(1,len(tableCards)+1):
                         allCardCombinations += list(itertools.combinations(tableCards,i))
