@@ -1,0 +1,17 @@
+Round: 1
+
+Computer: 
+Score: 0
+Hand: DJ S9 H3 
+Pile: CA SA 
+
+Human: 
+Score: 0
+Hand: C8 DX CX S7 
+Pile: 
+
+Table: HJ CK C5 
+
+Deck: C2 C6 H5 D2 H7 C7 CJ D4 HK DA S2 HX C4 D6 S3 D7 S6 S4 HQ H6 DK SX CQ D9 SQ H9 C3 D8 S5 SK DQ SJ D3 C9 H8 D5 HA S8 H2 H4 
+
+Next Player: Human

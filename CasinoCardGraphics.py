@@ -191,7 +191,7 @@ def playCardUI(card):
             spot.removeCard()
 
 def dealToTableUI(initialDealList): #this gets called once at the beginning of each game, just on the first hand
-    for i in range(4):
+    for i in range(len(initialDealList)):
           cardSpots[i+8].assignCard(initialDealList[i])
 
 def discardUI(card):
@@ -253,11 +253,10 @@ def populateHandsUI(player1, player2):
     #to determine whose hand to put the cards in
     for player in [player1, player2]:
         if player.side == "top":
-            j = 4
+            j = len(player.hand)
         else:
             j = 0
-            
-        for i in range(4):
+        for i in range(len(player.hand)):
             cardSpots[j+i].assignCard(player.hand[i])
             if player.side == "top":
                 cardSpots[j+i].side = "Back"

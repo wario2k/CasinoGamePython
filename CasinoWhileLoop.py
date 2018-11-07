@@ -1,12 +1,5 @@
 ### ------- Main Game Loop ------- ###
 
-##TO DO##
-#-add in a way to play multiple games
-#-
-#-
-#-
-#-
-
 
 import pygame, sys
 from pygame.locals import *
@@ -17,12 +10,12 @@ from CasinoCardGraphics import *
 from CasinoBoardGraphics import*
 from CasinoInteractive import getCard, getTableCards, getSelectedBuildRank, buildChoicesSpots, buildFromCoordinates
 from CasinoComputerPlayer import cardsValue, discardValue, getComputerMove
-from CasinoLogic import suits, Card, Deck, Player, ComputerPlayer, HumanPlayer, Table, multiplesCheck, Move, TakeLastCards, Save,Discard, Take, Build, rankChoices4Build
+from CasinoLogic import suits, Card, Deck, Player, Help,ComputerPlayer, HumanPlayer, Table, multiplesCheck, Move, TakeLastCards, Save,Discard, Take, Build, rankChoices4Build
 from GameState import GameState
 
 
 pygame.init()
-pygame.display.set_caption('Casino v5')
+pygame.display.set_caption('Casino Game')
 
 
 ## Global Variables 
@@ -51,7 +44,7 @@ while(1):
         break
     else:
         print("Invalid selection please try again")
-if(flip == h_choice):
+if(flip == int(h_choice)):
     print("Human will go first!")
     h_turn = False
     c_turn = True
@@ -108,7 +101,6 @@ while True: # main game loop
     elif gameState.displayCM:
         gameState.clear()
         pygame.time.wait(1000) #give the player time to see the computer's selections
-        
         if turnNumber == 7:
             gameState.waitP = True
             turnNumber = 0
@@ -341,6 +333,9 @@ while True: # main game loop
             elif(event.type == KEYDOWN and event.key == K_s):
                 moveType ="Save"
                 illegalMove = False
+            elif(event.type == KEYDOWN and event.key == K_h):
+                    moveType = "Help"
+                    illegalMove = False
 
 
 
@@ -356,6 +351,8 @@ while True: # main game loop
                     elif moveType =="Save":
                         #currentTable, human, computer, currentDeck, roundNumber
                         move = Save(table,player1,player2,deck,gameNumber+1)
+                    elif moveType =="Help":
+                        move = Help(player1, player2, table) #human player , comp , table
                     elif moveType == "Take":
                         tableCardList = getTableCards()
                         buildTaken = getSelectedBuildRank()          
@@ -406,8 +403,10 @@ while True: # main game loop
                             move.execute()
 
                             gameState.clear()
+                            if(moveType == "Help"):
+                                gameState.waitCM = True
 
-                            if turnNumber == 7:
+                            elif turnNumber == 7:
                                 gameState.waitP = True
                                 turnNumber = 0
                                 if handNumber == 5:

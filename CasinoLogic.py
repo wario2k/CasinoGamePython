@@ -53,6 +53,7 @@ class Deck():
         #params : cards 
         #returns : none 
         def loadDeck(self,cards):
+                self.remaining = [] # empty deck
                 for card in cards:
                         if(card[1] == "A"):
                                 rank = 1
@@ -226,7 +227,8 @@ class Table():
                 self.allCards = []
                 self.builds = {} #format: key: 7, value: [card, card, card]
         #probably can't load builds
-        def loadTable(self):
+        def loadTable(self,cards):
+                self.allCards = []
                 for card in cards:
                         if(card[1] == "A"):
                                 rank = 1
@@ -330,11 +332,7 @@ def multiplesCheck(rank, cards):
 
 
 class Move():
-        #this class is a mess..... because there are so many arguments being passed in and its hard to remember what to put where. Ideas:
-        #-make it so that you have to pass it in as player="Alicia", otherPlayer="Computer"
-        #-put these all inside of Player so that you don't have to pass in player and other player
-        #-is it silly to make a class and only have an init function? should I restructure all of it?
-        
+       #template passed into valid moves 
         def __init__(self, currentTable, cardPlayed, player, otherPlayer, tableCards=[], buildRank=0):
                 self.currentTable = currentTable
                 self.cardPlayed = cardPlayed
@@ -387,6 +385,148 @@ class Discard(Move):
                                 return False
                         else:        
                                 return True
+class HelperVals():
+        def __init__(self,player1, player2, table):
+                self.player = player1
+                self.otherPlayer = player2
+                self.table = table 
+
+class Help(HelperVals):
+
+        #Description : Determines up how valuable a list of cards would be if you took it
+        #Parameters : List of cards to evaluate
+        #Returns : Value of capture 
+        def cardsValue(self,cardList): 
+                points = 0
+                for card in cardList:
+                        points += 0.111 #just for being a card  -->  3/27 because 27 cards gets you 3 points
+                        if card.suit == "s":
+                                points += 0.143 # --> 1/7 because 7 spades gets you 1 point
+                        if card.rank == 2:
+                                points += 1
+                        elif card.suit == "d" and card.rank == 10: #the big casino
+                                points += 2
+                        #For Aces
+                        if card.rank == 1: 
+                                points += 1
+                return points
+
+
+        #Description : Trying to decide what card to discard, use this to find out what a card's value is, and then minimize over it
+        #Parameter : Card whose discard value you're trying to calculate
+        #Returns : Value of Card
+        def discardValue(self,card): 
+                return cardsValue([card])
+        def legal(self):
+                return True
+        def execute(self):
+                #you can Trail any card in your hand
+                discardChoices = self.player.hand[:] 
+                #this will get populated with different possibilites for captures
+                takeChoices = {} 
+                #this will get populated with different possibilites for builds
+                buildChoices = {}
+                #to determine best value
+                buildRank = 0
+                
+                #all possible sets from table
+                allCardCombinations = []
+                for i in range(1,len(self.table.availableCards())+1):
+                        allCardCombinations += list(itertools.combinations(self.table.availableCards(),i))
+
+
+                ##------------ Populating the takeChoices dictionary -----------##
+                #if this stays False, there are no capture moves so computer will trail
+                takePossible = False 
+                #here we go through each card in the hand to see what cards from the table it could take
+                for card in self.player.hand: 
+                        takeChoices[card] = []
+                        cardCanTake = False
+                        for combination in allCardCombinations:
+                        #if that combination would be a legal move to take with a card of this rank
+                                if multiplesCheck(card.rank, list(combination)): 
+                                        #put it in the list
+                                        takeChoices[card].append(list(combination)) 
+                                        #which means we can take (don't have to trail)
+                                        takePossible = True 
+                                        #that specific card from the hand can be used to capture
+                                        cardCanTake = True 
+                                        
+                        #if the card from the hand is the same rank as something currently part of a build
+                        if card.rank in self.table.builds.keys(): 
+                                #capture flag is set to true
+                                cardCanTake = True 
+                                takePossible = True
+                                #put another move into the list of ways to take cards with this card
+                                #it is empty for now because each possiblity will get the build added to it
+                                #so there will be one Capture choice that is just Capturing the build
+                                takeChoices[card].append([]) 
+                                for combo in takeChoices[card]:
+                                        combo += self.table.builds[card.rank]
+
+                        if cardCanTake == False:
+                        #we can get rid of the blank dictionary entry if it turns out that card couldn't actually Capture anything
+                                del takeChoices[card] 
+
+
+                ##------------ Populating the buildChoices dictionary -----------##
+                #if this stays False, might trail 
+                buildPossible = False 
+                #you can't build unless you have another card to take with!
+                if len(self.player.hand) > 1: 
+                        #this will be the card to take with next time
+                        for card in self.player.hand: 
+                                if card.rank not in self.otherPlayer.currentBuilds:
+                                        buildChoices[card] = []
+                                        cardCanTakeBuild = False
+                                        otherCardsList = self.player.hand[:]
+                                        otherCardsList.remove(card)
+                                        for combination in allCardCombinations:               
+                                                for otherCard in otherCardsList: #the other card from your hand has to be in the resulting build                
+                                                        if multiplesCheck(card.rank, list(combination)+[otherCard]): #if that combination would be a legal build to take with a card of this rank
+                                                                buildChoices[card].append(list(combination)+[otherCard]) #put it in the list (with the card to actually play this time at the end
+                                                                buildPossible = True #which means we can build (don't have to discard)...
+                                                                cardCanTakeBuild = True
+                                                
+                                        if card.rank in self.player.currentBuilds: #if we're already building to that
+                                                for c in otherCardsList:
+                                                        if c.rank == card.rank: #if there's a second card of this rank still in your hand
+                                                                cardCanTakeBuild = True
+                                                                buildChoices[card].append([c]) #you could just add that to the build
+
+                                #if card.rank > 10 or card.rank in otherPlayer.currentBuilds:
+                #                    if card.rank in otherPlayer.currentBuilds:
+                #                        print "i fixed this bug!"
+                #                    cardCanTakeBuild = False
+                                        if cardCanTakeBuild == False:
+                                                del buildChoices[card] #we can get rid of the blank dictionary entry if it turns out that card couldn't actually take a build of anything
+
+
+                ##------------ Deciding what move to do -----------##
+
+
+                if takePossible: #if we can take cards, first figure out what the best way to take cards is
+                        flattenedTakeChoices = []
+                                
+                        for Hcard in takeChoices.keys(): #of all the cards you can take with,
+                                for combo in takeChoices[Hcard]: #for each set of table cards that was takeable,
+                                        flattenedTakeChoices.append([Hcard]+combo) #make a new list that has all of those table cards plus the card from your hand
+                                                                                        #because this is the entire set that will get added to our pile, so we want to maximize those points 
+
+                if buildPossible: #if we can build something, figure out which build is best
+                        flattenedBuildChoices = []
+                        for Hcard in buildChoices.keys(): #of all the cards you can take a future build with
+                                for combo in buildChoices[Hcard]: #for each set of table cards that was buildable,
+                                        flattenedBuildChoices.append([Hcard]+combo) #make a new list that has all of those table cards plus the card from your hand
+                                                                                #because this is the entire set that will get added to our pile next turn, so we want to maximize those points 
+                if(buildPossible):
+                        print("There is a potential build you could make here!")
+                elif(takePossible):
+                        print("You can capture a card using a card from your hand!")
+                else:
+                        print("The only option for you is to trail a card from your hand.")        
+
+
 
 class Take(Move):
         def execute(self):
@@ -470,12 +610,12 @@ class Save(saveHandler):
 
                 f.write("\nHuman: \n")
                 f.write("Score: " + str(self.s_human.totalPoints))
-                h_hand = self.s_human.printHand()
-                str_hhand = ""
-                for card in h_hand:
-                        str_hhand += c_card
-                        str_hhand += " "
-                f.write("\nHand: " + str_hhand)
+                c_hand = self.s_human.printHand()
+                str_chand = ""
+                for c_card in c_hand:
+                        str_chand += c_card
+                        str_chand += " "
+                f.write("\nHand: " + str_chand)
                 h_pile = self.s_human.printPile()
                 str_hpile = ""
                 for card in h_pile:
@@ -497,7 +637,7 @@ class Save(saveHandler):
                 f.write("\nTable: " + table_str) #does not write cards in builds
                 #build if exist
                 if(has_build):
-                        f.write("\nBuild: ")
+                        f.write("\nBuild Owner: ")
                 #deck
                 cardsInDeck = self.s_deck.getDeck()
                 deck_str = ""

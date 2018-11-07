@@ -7,7 +7,9 @@ class GameState():
             #and the beginning of each hand
             #should always go to either waitGM or waitCM next
             #(depending on who is the dealer)
-
+        #if game is loaded then this flag is set to true
+        self.loaded = False
+        self.getHelp = False
         self.waitP = False
             #right before going to the prep state
         
@@ -74,3 +76,6 @@ class GameState():
         self.newGame = False
         self.roundOver = False
         self.waitRO = False
+        self.loaded = False
+        self.getHelp = False
+        

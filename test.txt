@@ -1,13 +1,17 @@
-Round: 1
-Computer: 
-Score: 0
-Hand: D4 D9 HX 
-Pile: 
-Human: 
-Score: 0
-Hand: HX HX HX HX 
-Pile: 
-Table: DJ SJ CQ 
+Round: 2
+  
+Computer:
+   Score: 14
+   Hand: S7 D5 CQ
+   Pile: HK C4 D7 H9 C9 S9 SK SA C3 SQ C8 HA H4 H5 S8 DK DA S4 S5 DX DJ S3 D6 CX
+ 
+Human:
+   Score: 15
+   Hand: H6 C5 D9
+   Pile: SX C7 H8 CJ HX H2 S6 C6 D8 SJ HQ DQ CA  C2 D3 H7 HJ D2 S2
 
-Deck: H6 S8 DA HQ HJ H2 H8 D5 SQ S9 S7 CA S2 SK HA CX S3 D3 HK H7 SX C8 CK SA DX S6 S5 D7 D8 H5 S4 DK CJ C2 C5 C6 C4 C3 H9 D2 
+Table: H3 D4 CK 
+
+Deck: 
+
 Next Player: Human
